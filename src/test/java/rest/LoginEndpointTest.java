@@ -1,5 +1,7 @@
 package rest;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import entities.User;
 import entities.Role;
 
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
+import utils.StartDataSet;
 
 //Disabled
 public class LoginEndpointTest {
@@ -63,32 +66,7 @@ public class LoginEndpointTest {
     //TODO -- Make sure to change the EntityClass used below to use YOUR OWN (renamed) Entity class
     @BeforeEach
     public void setUp() {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            //Delete existing users and roles to get a "fresh" database
-            em.createQuery("delete from User").executeUpdate();
-            em.createQuery("delete from Role").executeUpdate();
-
-            Role userRole = new Role("user");
-            Role adminRole = new Role("admin");
-            User user = new User("user", "test");
-            user.addRole(userRole);
-            User admin = new User("admin", "test");
-            admin.addRole(adminRole);
-            User both = new User("user_admin", "test");
-            both.addRole(userRole);
-            both.addRole(adminRole);
-            em.persist(userRole);
-            em.persist(adminRole);
-            em.persist(user);
-            em.persist(admin);
-            em.persist(both);
-            //System.out.println("Saved test data to database");
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
+        StartDataSet.setupInitialData(emf);
     }
 
     //This is how we hold on to the token after login, similar to that a client must store the token somewhere
@@ -96,8 +74,8 @@ public class LoginEndpointTest {
 
 
     //Utility method to login and set the returned securityToken
-    private static void login(String role, String password) {
-        String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
+    private static void login(String username, String password) {
+        String json = String.format("{username: \"%s\", password: \"%s\"}", username, password);
         securityToken = given()
                 .contentType("application/json")
                 .body(json)
@@ -129,7 +107,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForAdmin() {
-        login("admin", "test");
+        login("admin", "testAdmin");
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
@@ -142,7 +120,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForUser() {
-        login("user", "test");
+        login("user", "testUser");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -154,7 +132,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testAutorizedUserCannotAccesAdminPage() {
-        login("user", "test");
+        login("user", "testUser");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -165,7 +143,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testAutorizedAdminCannotAccesUserPage() {
-        login("admin", "test");
+        login("admin", "testAdmin");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -176,7 +154,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForMultiRole1() {
-        login("user_admin", "test");
+        login("user_admin", "testBoth");
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
@@ -189,7 +167,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForMultiRole2() {
-        login("user_admin", "test");
+        login("user_admin", "testBoth");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -225,11 +203,20 @@ public class LoginEndpointTest {
     
     @Test
     public void testCreateUser() {
-        String username = "new_test_user";
-        String json = String.format("{\"username\": \"%s\", \"password\": \"%s\", \"roles\": [{\"rolename\":\"%s\"}]}", username, "pas123", "user");
+        String username = "new_user_test";
+        login("admin", "testAdmin");
+        JsonObject inputJson = new JsonObject();
+        inputJson.addProperty("username", username);
+        inputJson.addProperty("password", "testUser");
+        JsonArray jsonArray = new JsonArray();
+        JsonObject roleObject = new JsonObject();
+        roleObject.addProperty("rolename", "user");
+        jsonArray.add(roleObject);
+        inputJson.add("roles", jsonArray);
         given()
                 .contentType("application/json")
-                .body(json)
+                .header("x-access-token", securityToken)
+                .body(inputJson)
                 .when().post("/user")
                 .then()
                 .body("username", equalTo(username));
@@ -238,14 +225,22 @@ public class LoginEndpointTest {
     @Test
     public void testCreateUserWithExistingUsername() {
         String username = "user";
-        String json = String.format("{\"username\": \"%s\", \"password\": \"%s\", \"roles\": [{\"rolename\":\"%s\"}]}", username, "pas123", "user");
+        login("admin", "testAdmin");
+        JsonObject inputJson = new JsonObject();
+        inputJson.addProperty("username", username);
+        inputJson.addProperty("password", "testUser");
+        JsonArray jsonArray = new JsonArray();
+        JsonObject roleObject = new JsonObject();
+        roleObject.addProperty("rolename", "user");
+        jsonArray.add(roleObject);
+        inputJson.add("roles", jsonArray);
         given()
                 .contentType("application/json")
-                .body(json)
+                .header("x-access-token", securityToken)
+                .body(inputJson)
                 .when().post("/user")
                 .then()
                 .body("message", equalTo("Username already exists"));
-        //Assertions.assertEquals("Username already exists", result);
     }
 
 }

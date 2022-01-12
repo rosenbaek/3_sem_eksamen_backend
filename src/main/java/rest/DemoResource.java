@@ -3,20 +3,15 @@ package rest;
 import callables.ApiFetchCallable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import dtos.CombinedApiDTO;
-import dtos.WeatherDTO;
-import dtos.CurrencyApiDTO;
+import dtos.demo.CombinedApiDTO;
+import dtos.demo.WeatherDTO;
+import dtos.demo.CurrencyApiDTO;
 import entities.User;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -26,17 +21,16 @@ import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
+
+import errorhandling.API_Exception;
 import utils.EMF_Creator;
-import utils.Utility;
+import utils.StartDataSet;
 import utils.api.MakeOptions;
 
 /**
@@ -73,11 +67,30 @@ public class DemoResource {
             em.close();
         }
     }
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("test")
+    @RolesAllowed({"user","admin"})
+    public Response testErrorEndPoint() throws API_Exception {
+        List<String> strings = new ArrayList<>();
+        try{
+            for (int i = 0; i < 10; i++){
+                System.out.println(strings.get(i));
+            }
+        } catch (Exception e){
+            throw new API_Exception("FEJL SOM MENINGEN");
+        }
+        return Response.ok().entity("{\"msg\": \"Hello to User: " + "test" + "\"}").build();
+    }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("threads")
-    public void getFromThreads(@Suspended final AsyncResponse ar) {
+    @RolesAllowed({"user","admin"})
+    public void getFromThreads(@Suspended final AsyncResponse ar) throws API_Exception {
+
         //Make options to get possibility to switch between methods and headers if needed.
         MakeOptions makeOptions = new MakeOptions("GET");
         
@@ -98,7 +111,6 @@ public class DemoResource {
                 Future<String> future = executor.submit(new ApiFetchCallable(url.getKey(), url.getValue()));
                 futures.add(future);
               }
-              
                 //Get the results
                 for (Future<String> future : futures) {
                     String str = future.get();
@@ -118,6 +130,7 @@ public class DemoResource {
             CombinedApiDTO combinedApiDTO = new CombinedApiDTO(weatherDTOArray[0],currencyApiDTO);
             
             //Returns data in json
+
             ar.resume(gson.toJson(combinedApiDTO));
         }).start();
     }
@@ -140,5 +153,14 @@ public class DemoResource {
     public String getFromAdmin() {
         String thisuser = securityContext.getUserPrincipal().getName();
         return "{\"msg\": \"Hello to (admin) User: " + thisuser + "\"}";
+    }
+
+    @GET
+    @Path("reset")
+    public String resetDataSet() {
+        StartDataSet setup = new StartDataSet();
+        String[] arguments = new String[] {""};
+        setup.main(arguments);
+        return "Reset";
     }
 }
