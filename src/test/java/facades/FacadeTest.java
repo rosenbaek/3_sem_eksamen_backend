@@ -9,6 +9,7 @@ import entities.Bookings;
 import entities.Car;
 import entities.User;
 import entities.WashingAssistants;
+import errorhandling.API_Exception;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -94,6 +96,25 @@ public class FacadeTest {
         User user = facade.getUserData(StartDataSet.user.getUserName());
         Bookings booking = user.getCarsList().get(0).getBookingsList().get(0);
         assertEquals(1,booking.getWashingAssistantsList().size());
+    }
+
+    @Test
+    public void test_AddBooking() throws API_Exception {
+        User user = facade.getUserData(StartDataSet.user.getUserName());
+        String carReg = user.getCarsList().get(0).getRegistration();
+        Bookings booking = new Bookings(new Date(), 10);
+        WashingAssistants wa = facade.getWashingAssistants().get(0);
+        booking.addWashingAssistant(wa);
+        Car car = facade.addBooking(carReg, booking);
+        Bookings bookingManaged = car.getBookingsList().get(car.getBookingsList().size()-1);
+        Assertions.assertNotNull(bookingManaged.getId());
+    }
+
+    @Test
+    public void test_AddWashingAssistant() throws API_Exception {
+        WashingAssistants washingAssistant = new WashingAssistants("NewName","Danish", 2.0f,12.0f);
+        washingAssistant = facade.addWashingAssistant(washingAssistant);
+        Assertions.assertNotNull(washingAssistant.getId());
     }
 
 

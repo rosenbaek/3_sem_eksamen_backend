@@ -19,8 +19,7 @@ import java.net.URI;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 public class CarWashEndpointTest {
 
@@ -112,5 +111,34 @@ public class CarWashEndpointTest {
                 .then()
                 .statusCode(200)
                 .body("washingAssistants", hasSize(3));
+    }
+
+    @Test
+    public void test_AddBooking() {
+        String body = "{carReg:\"reg1\",dateTime:\"2022-01-25T11:26:00.000Z\",duration:0,washingAssistants:[{id:1,name:\"name1\",primaryLanguage:\"danish\",rate:10,experience:0.5}]}";
+        login(StartDataSet.user.getUserName(), "testUser");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(body)
+                .when().post("/carwash/booking")
+                .then()
+                .statusCode(200)
+                .body("bookings", hasSize(2));
+
+    }
+    @Test
+    public void test_AddWashingAssistant() {
+        String body = "{name:\"NewAssistant\",primaryLanguage:\"danish\",rate:10,experience:0.5}";
+        login(StartDataSet.admin.getUserName(), "testAdmin");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(body)
+                .when().post("/carwash/assistants")
+                .then()
+                .statusCode(200)
+                .body("id", is(notNullValue()));
+
     }
 }

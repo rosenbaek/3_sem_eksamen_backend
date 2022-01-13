@@ -4,8 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import dtos.AddBookingDTO;
 import dtos.carwash.AssistantDTO;
+import dtos.carwash.CarDTO;
 import dtos.carwash.WashingAssistantsDTO;
+import entities.Bookings;
+import entities.Car;
 import entities.WashingAssistants;
 import errorhandling.API_Exception;
 
@@ -14,6 +18,7 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -61,5 +66,29 @@ public class CarWashResource {
         WashingAssistantsDTO dto = new WashingAssistantsDTO(list);
         return Response.ok().entity(gson.toJson(dto.getWashingAssistants())).build();
     }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @RolesAllowed({"user","admin"})
+    @Path("assistants")
+    public Response addWashingAssistant(String jsonString) throws API_Exception {
+        AssistantDTO inputDTO = gson.fromJson(jsonString, AssistantDTO.class);
+        WashingAssistants washingAssistant = facade.addWashingAssistant(inputDTO.getEntity());
+        return Response.ok().entity(gson.toJson(new AssistantDTO(washingAssistant))).build();
+    }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @RolesAllowed({"user","admin"})
+    @Path("booking")
+    public Response addBooking(String jsonString) throws API_Exception {
+        AddBookingDTO inputDTO = gson.fromJson(jsonString, AddBookingDTO.class);
+        Bookings booking = inputDTO.getEntity();
+        String carReg = inputDTO.getCarReg();
+        CarDTO carDTO = new CarDTO(facade.addBooking(carReg, booking));
+        return Response.ok().entity(gson.toJson(carDTO)).build();
+    }
+
+
 
 }

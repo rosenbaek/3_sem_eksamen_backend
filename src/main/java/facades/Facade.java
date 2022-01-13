@@ -3,8 +3,10 @@ package facades;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import entities.Bookings;
+import entities.Car;
 import entities.User;
 import entities.WashingAssistants;
+import errorhandling.API_Exception;
 
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -44,6 +46,42 @@ public class Facade {
         try {
             return em.find(User.class, username);
         } finally {
+            em.close();
+        }
+    }
+
+    public Car addBooking(String carRegistration, Bookings booking) throws API_Exception {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Car updatedCar = em.find(Car.class, carRegistration);
+            for (WashingAssistants assistant : booking.getWashingAssistantsList()) {
+                if (assistant.getId() != null) {
+                    assistant = em.find(WashingAssistants.class, assistant.getId());
+                } else {
+                    throw new API_Exception("");
+                }
+            }
+            updatedCar.addBooking(booking);
+
+            em.persist(booking);
+            updatedCar = em.merge(updatedCar);
+            em.getTransaction().commit();
+            return updatedCar;
+        }finally {
+            em.close();
+        }
+    }
+
+    public WashingAssistants addWashingAssistant(WashingAssistants washingAssistant){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+                em.persist(washingAssistant);
+                em.flush(); //To ensure that the washingAssistant has an id before returned
+            em.getTransaction().commit();
+            return washingAssistant;
+        }finally {
             em.close();
         }
     }
