@@ -148,4 +148,15 @@ public class CarWashEndpointTest {
                 .body("id", is(notNullValue()));
 
     }
+    @Test
+    public void test_GetAllCars() {
+        login(StartDataSet.admin.getUserName(), "testAdmin");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when().get("/carwash/cars")
+                .then()
+                .statusCode(200)
+                .body("$", hasSize(3));
+    }
 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import dtos.AddBookingDTO;
 import dtos.carwash.AssistantDTO;
+import dtos.carwash.CarsDTO;
 import dtos.carwash.CarDTO;
 import dtos.carwash.WashingAssistantsDTO;
 import entities.Bookings;
@@ -88,6 +89,28 @@ public class CarWashResource {
         return Response.ok().entity(gson.toJson(carDTO)).build();
     }
 
+    @PUT
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @RolesAllowed({"user","admin"})
+    @Path("booking")
+    public Response editBooking(String jsonString) throws API_Exception {
+        AddBookingDTO inputDTO = gson.fromJson(jsonString, AddBookingDTO.class);
+        Bookings booking = inputDTO.getEntity();
+        String carReg = inputDTO.getCarReg();
+        CarDTO carDTO = new CarDTO(facade.editBooking(carReg, booking));
+        return Response.ok().entity(gson.toJson(carDTO)).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @RolesAllowed("admin")
+    @Path("cars")
+    public Response getAllCars() throws API_Exception {
+        List<Car> cars = facade.getAllCars();
+        CarsDTO dto = new CarsDTO(cars);
+        return Response.ok().entity(gson.toJson(dto.getWashingAssistants())).build();
+    }
 
 
 }

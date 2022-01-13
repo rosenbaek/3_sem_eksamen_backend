@@ -117,6 +117,22 @@ public class FacadeTest {
         Assertions.assertNotNull(washingAssistant.getId());
     }
 
+    @Test
+    public void test_GetAllCars() throws API_Exception {
+        List<Car> result = facade.getAllCars();
+        assertEquals(3, result.size());
+    }
+
+
+    @Test
+    public void test_editBooking() throws API_Exception {
+        Car c = facade.getAllCars().get(0);
+        Bookings booking = c.getBookingsList().get(0);
+        WashingAssistants w = facade.getWashingAssistants().get(1);
+        booking.addWashingAssistant(w);
+        Car car = facade.editBooking(c.getRegistration(),booking);
+        assertEquals(2, car.getBookingsList().get(0).getWashingAssistantsList().size());
+    }
 
     @Test
     public void testCreateUser() throws Exception {

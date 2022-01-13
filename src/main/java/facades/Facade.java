@@ -55,21 +55,42 @@ public class Facade {
         try {
             em.getTransaction().begin();
             Car updatedCar = em.find(Car.class, carRegistration);
-
             for (WashingAssistants assistant : booking.getWashingAssistantsList()) {
                 if (assistant.getId() != null) {
                     assistant = em.find(WashingAssistants.class, assistant.getId());
-
                 } else {
                     throw new API_Exception("");
                 }
             }
-
             updatedCar.addBooking(booking);
             em.persist(booking);
-
             updatedCar = em.merge(updatedCar);
-            em.flush();
+            em.getTransaction().commit();
+            return updatedCar;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
+            em.close();
+        }
+        return null;
+    }
+
+    public Car editBooking(String carRegistration, Bookings booking) throws API_Exception {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Car updatedCar = em.find(Car.class, carRegistration);
+            for (WashingAssistants assistant : booking.getWashingAssistantsList()) {
+                if (assistant.getId() != null) {
+                    assistant = em.find(WashingAssistants.class, assistant.getId());
+                } else {
+                    throw new API_Exception("");
+                }
+            }
+            updatedCar.addBooking(booking);
+            em.merge(booking);
+            updatedCar = em.merge(updatedCar);
             em.getTransaction().commit();
             return updatedCar;
         } catch (Exception e) {
@@ -90,6 +111,17 @@ public class Facade {
             em.getTransaction().commit();
             return washingAssistant;
         }finally {
+            em.close();
+        }
+    }
+
+    public List<Car> getAllCars() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<Car> query = em.createQuery ("select c from Car c",entities.Car.class);
+            List<Car> cars = query.getResultList();
+            return cars;
+        } finally {
             em.close();
         }
     }

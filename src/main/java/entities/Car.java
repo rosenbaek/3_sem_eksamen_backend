@@ -121,8 +121,11 @@ public class Car implements Serializable {
     }
     
     public void addBooking(Bookings booking) {
-        this.bookingsList.add(booking);
-        booking.setCar(this);
+        if (!this.bookingsList.contains(booking)){
+            this.bookingsList.add(booking);
+            booking.setCar(this);
+        }
+
     }
    
 
