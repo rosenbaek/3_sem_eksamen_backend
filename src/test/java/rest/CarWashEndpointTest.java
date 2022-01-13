@@ -1,12 +1,6 @@
 package rest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import entities.Role;
-import entities.User;
-import facades.ExamFacade;
+import facades.Facade;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -19,19 +13,16 @@ import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 import utils.StartDataSet;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.Date;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
-public class ExamEndpointTest {
+public class CarWashEndpointTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
@@ -39,7 +30,7 @@ public class ExamEndpointTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
-    private static ExamFacade facade;
+    private static Facade facade;
 
 
 
@@ -53,7 +44,7 @@ public class ExamEndpointTest {
         //This method must be called before you request the EntityManagerFactory
         EMF_Creator.startREST_TestWithDB();
         emf = EMF_Creator.createEntityManagerFactoryForTest();
-        facade = ExamFacade.getExamFacade(emf);
+        facade = Facade.getFacade(emf);
 
         httpServer = startServer();
         //Setup RestAssured
@@ -105,11 +96,21 @@ public class ExamEndpointTest {
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
-                .when().get("/exam/verify")
+                .when().get("/carwash/verify")
                 .then()
                 .statusCode(200)
                 .body("number", equalTo(3));
     }
 
-
+    @Test
+    public void test_GetWashingAssistants() {
+        login(StartDataSet.user.getUserName(), "testUser");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when().get("/carwash/assistants")
+                .then()
+                .statusCode(200)
+                .body("washingAssistants", hasSize(3));
+    }
 }

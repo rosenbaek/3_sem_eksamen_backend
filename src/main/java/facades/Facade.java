@@ -2,47 +2,40 @@ package facades;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import entities.User;
-import errorhandling.API_Exception;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import entities.WashingAssistants;
+
 import java.util.List;
-import java.util.Map;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
-import utils.Utility;
-import utils.api.MakeOptions;
 
-/**
- *
- * @author mikke
- */
-public class ExamFacade {
+
+public class Facade {
     private static EntityManagerFactory emf;
-    private static ExamFacade instance;
+    private static Facade instance;
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private ExamFacade() {
+    private Facade() {
     }
 
-    public static ExamFacade getExamFacade(EntityManagerFactory _emf) {
+    public static Facade getFacade(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
-            instance = new ExamFacade();
+            instance = new Facade();
         }
         return instance;
+    }
+
+    public List<WashingAssistants> getWashingAssistants(){
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<WashingAssistants> query = em.createQuery ("select w from WashingAssistants w",entities.WashingAssistants.class);
+            List<WashingAssistants> washingAssistants = query.getResultList();
+            return washingAssistants;
+        } finally {
+            em.close();
+        }
     }
 
     public int getUsers(){

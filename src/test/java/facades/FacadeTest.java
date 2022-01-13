@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dtos.user.UserDTO;
 import entities.User;
+import entities.WashingAssistants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,17 +18,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FacadeTest {
 
     private static EntityManagerFactory emf;
     private static UserFacade userFacade;
-    private static ExamFacade facade;
-
-
-
-
+    private static Facade facade;
 
     public FacadeTest() {
     }
@@ -35,7 +34,7 @@ public class FacadeTest {
     @BeforeAll
     public static void setUpClass() {
         emf = EMF_Creator.createEntityManagerFactoryForTest();
-        facade = ExamFacade.getExamFacade(emf);
+        facade = Facade.getFacade(emf);
         userFacade = UserFacade.getUserFacade(emf);
     }
 
@@ -63,6 +62,11 @@ public class FacadeTest {
         assertEquals(_both.getUserName(), StartDataSet.both.getUserName());
     }
 
+    @Test
+    public void testGetWashingAssistants() {
+        List<WashingAssistants> result = facade.getWashingAssistants();
+        assertEquals(3,result.size());
+    }
 
 
     @Test

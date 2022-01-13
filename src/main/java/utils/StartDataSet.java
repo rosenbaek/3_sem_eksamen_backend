@@ -19,7 +19,6 @@ public class StartDataSet {
     public static WashingAssistants w1,w2,w3;
 
     public static void main(String[] args) {
-
         EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory();
         setupInitialData(emf);
     }
@@ -34,16 +33,11 @@ public class StartDataSet {
             em.createNamedQuery("Car.deleteAllRows").executeUpdate();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
-           
-            
             em.createNamedQuery("WashingAssistants.deleteAllRows").executeUpdate();
-
-
 
             user = new User("user", "testUser");
             admin = new User("admin", "testAdmin");
             both = new User("user_admin", "testBoth");
-            
           
             c1 = new Car("reg1", "audi", "a4", 2003);
             c2 = new Car("reg2", "bmw", "m1", 2007);
@@ -52,7 +46,6 @@ public class StartDataSet {
             b1 = new Bookings(new Date(),10);
             b2 = new Bookings(new Date(),12);
             b3 = new Bookings(new Date(),13);
-            
             
             w1 = new WashingAssistants("name1", "danish", 0.5f, 10.0f);
             w2 = new WashingAssistants("name2", "english", 1.5f, 20.0f);
@@ -69,7 +62,6 @@ public class StartDataSet {
 
             userRole = new Role("user");
             adminRole = new Role("admin");
-            
 
             user.addRole(userRole);
             admin.addRole(adminRole);
@@ -100,7 +92,6 @@ public class StartDataSet {
             em.persist(both);
 
             em.getTransaction().commit();
-
         } finally {
             em.close();
         }
