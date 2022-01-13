@@ -2,6 +2,7 @@ package facades;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import entities.Bookings;
 import entities.User;
 import entities.WashingAssistants;
 
@@ -33,6 +34,15 @@ public class Facade {
             TypedQuery<WashingAssistants> query = em.createQuery ("select w from WashingAssistants w",entities.WashingAssistants.class);
             List<WashingAssistants> washingAssistants = query.getResultList();
             return washingAssistants;
+        } finally {
+            em.close();
+        }
+    }
+
+    public User getUserData(String username){
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.find(User.class, username);
         } finally {
             em.close();
         }

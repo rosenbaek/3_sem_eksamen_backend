@@ -13,6 +13,7 @@ import dtos.user.UserDTO;
 import entities.User;
 import errorhandling.API_Exception;
 import errorhandling.GenericExceptionMapper;
+import facades.Facade;
 import facades.UserFacade;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +21,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 import security.errorhandling.AuthenticationException;
 import utils.EMF_Creator;
 
@@ -42,15 +41,28 @@ import utils.EMF_Creator;
 public class UserResource {
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
     public static final UserFacade USER_FACADE = UserFacade.getUserFacade(EMF);
+    public static final Facade facade = Facade.getFacade(EMF);
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    
+
     @Context
     private UriInfo context;
 
+    @Context
+    SecurityContext securityContext;
     /**
      * Creates a new instance of UserResource
      */
     public UserResource() {
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @RolesAllowed({"user","admin"})
+    public Response getUserData() throws API_Exception, Exception {
+        String username = securityContext.getUserPrincipal().getName();
+        User user = facade.getUserData(username);
+        UserDTO newUserDTO = new UserDTO(user);
+        return Response.ok().entity(gson.toJson(newUserDTO)).build();
     }
 
     @POST

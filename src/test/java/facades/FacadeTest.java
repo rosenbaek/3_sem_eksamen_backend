@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dtos.user.UserDTO;
+import entities.Bookings;
+import entities.Car;
 import entities.User;
 import entities.WashingAssistants;
 import org.junit.jupiter.api.Assertions;
@@ -66,6 +68,32 @@ public class FacadeTest {
     public void testGetWashingAssistants() {
         List<WashingAssistants> result = facade.getWashingAssistants();
         assertEquals(3,result.size());
+    }
+
+    @Test
+    public void test_GetUserData() {
+        User user = facade.getUserData(StartDataSet.user.getUserName());
+        Assertions.assertNotNull(user);
+    }
+
+    @Test
+    public void test_GetUserData_GetCar() {
+        User user = facade.getUserData(StartDataSet.user.getUserName());
+        assertEquals(1,user.getCarsList().size());
+    }
+
+    @Test
+    public void test_GetUserData_GetCarBookings() {
+        User user = facade.getUserData(StartDataSet.user.getUserName());
+        Car car = user.getCarsList().get(0);
+        assertEquals(1,car.getBookingsList().size());
+    }
+
+    @Test
+    public void test_GetUserData_GetCarBookingAssistants() {
+        User user = facade.getUserData(StartDataSet.user.getUserName());
+        Bookings booking = user.getCarsList().get(0).getBookingsList().get(0);
+        assertEquals(1,booking.getWashingAssistantsList().size());
     }
 
 
