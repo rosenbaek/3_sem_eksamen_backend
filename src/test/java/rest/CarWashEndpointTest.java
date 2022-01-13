@@ -1,5 +1,10 @@
 package rest;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import entities.WashingAssistants;
 import facades.Facade;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -101,21 +106,12 @@ public class CarWashEndpointTest {
                 .body("number", equalTo(3));
     }
 
-    @Test
-    public void test_GetWashingAssistants() {
-        login(StartDataSet.user.getUserName(), "testUser");
-        given()
-                .contentType("application/json")
-                .header("x-access-token", securityToken)
-                .when().get("/carwash/assistants")
-                .then()
-                .statusCode(200)
-                .body("washingAssistants", hasSize(3));
-    }
+
 
     @Test
     public void test_AddBooking() {
-        String body = "{carReg:\"reg1\",dateTime:\"2022-01-25T11:26:00.000Z\",duration:0,washingAssistants:[{id:1,name:\"name1\",primaryLanguage:\"danish\",rate:10,experience:0.5}]}";
+        WashingAssistants w =  facade.getWashingAssistants().get(0); //Because id changes in unitTest
+        String body = "{carReg:\"reg1\",dateTime:\"2022-01-25T11:26:00.000Z\",duration:0,washingAssistants:[{id:"+w.getId()+",name:\"name1\",primaryLanguage:\"danish\",rate:10,experience:0.5}]}";
         login(StartDataSet.user.getUserName(), "testUser");
         given()
                 .contentType("application/json")
@@ -126,6 +122,17 @@ public class CarWashEndpointTest {
                 .statusCode(200)
                 .body("bookings", hasSize(2));
 
+    }
+    @Test
+    public void test_GetWashingAssistants() {
+        login(StartDataSet.user.getUserName(), "testUser");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when().get("/carwash/assistants")
+                .then()
+                .statusCode(200)
+                .body("washingAssistants", hasSize(3));
     }
     @Test
     public void test_AddWashingAssistant() {

@@ -17,12 +17,9 @@ import java.io.IOException;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -69,6 +66,7 @@ public class CarWashResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user","admin"})
     @Path("assistants")
     public Response addWashingAssistant(String jsonString) throws API_Exception {
@@ -79,6 +77,7 @@ public class CarWashResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user","admin"})
     @Path("booking")
     public Response addBooking(String jsonString) throws API_Exception {

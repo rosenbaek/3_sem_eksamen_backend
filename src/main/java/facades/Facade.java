@@ -55,22 +55,30 @@ public class Facade {
         try {
             em.getTransaction().begin();
             Car updatedCar = em.find(Car.class, carRegistration);
+
             for (WashingAssistants assistant : booking.getWashingAssistantsList()) {
                 if (assistant.getId() != null) {
                     assistant = em.find(WashingAssistants.class, assistant.getId());
+
                 } else {
                     throw new API_Exception("");
                 }
             }
-            updatedCar.addBooking(booking);
 
+            updatedCar.addBooking(booking);
             em.persist(booking);
+
             updatedCar = em.merge(updatedCar);
+            em.flush();
             em.getTransaction().commit();
             return updatedCar;
-        }finally {
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        finally {
             em.close();
         }
+        return null;
     }
 
     public WashingAssistants addWashingAssistant(WashingAssistants washingAssistant){
