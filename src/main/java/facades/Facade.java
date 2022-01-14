@@ -54,10 +54,29 @@ public class Facade {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            User user = em.find(User.class, username);
-            user.addCar(car);
-            em.persist(car);
-            em.flush();
+                User user = em.find(User.class, username);
+                user.addCar(car);
+                em.persist(car);
+                em.flush();
+            em.getTransaction().commit();
+            return car;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Car editCar(String username, Car car){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+                User user = em.find(User.class, username);
+                if (car.getBookingsList().isEmpty()){
+                    Car oldCar = em.find(Car.class, car.getRegistration());
+                    car.setBookingsList(oldCar.getBookingsList());
+                }
+                car.setUser(user);
+                em.merge(car);
+                em.flush();
             em.getTransaction().commit();
             return car;
         } finally {

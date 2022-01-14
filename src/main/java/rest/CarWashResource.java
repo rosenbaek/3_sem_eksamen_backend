@@ -106,6 +106,18 @@ public class CarWashResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     @RolesAllowed("admin")
+    @Path("car")
+    public Response editCar(String jsonString) throws API_Exception {
+        CarDTO inputDTO = gson.fromJson(jsonString, CarDTO.class);
+        Car car = inputDTO.getEntity();
+        CarDTO carDTO = new CarDTO(facade.editCar(inputDTO.getUsername(), car));
+        return Response.ok().entity(gson.toJson(carDTO)).build();
+    }
+
+    @PUT
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @RolesAllowed("admin")
     @Path("booking")
     public Response editBooking(String jsonString) throws API_Exception {
         AddBookingDTO inputDTO = gson.fromJson(jsonString, AddBookingDTO.class);

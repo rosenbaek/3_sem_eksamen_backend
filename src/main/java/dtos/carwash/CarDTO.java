@@ -13,6 +13,7 @@ public class CarDTO {
     private String registration;
     private String brand;
     private String make;
+    private String username;
     private Integer year;
     private List<BookingDTO> bookings = new ArrayList<>();
     private Float totalCost = 0f;
@@ -36,5 +37,9 @@ public class CarDTO {
         }
 
         return car;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

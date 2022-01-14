@@ -147,6 +147,15 @@ public class FacadeTest {
         car = facade.addCar(StartDataSet.user.getUserName(), car);
         Assertions.assertNotNull(car.getUser());
     }
+    @Test
+    public void test_editCar() throws API_Exception {
+        Car car = facade.getAllCars().get(0);
+        String username = car.getUser().getUserName();
+        String oldMake = car.getMake();
+        car.setMake("NewMake");
+        Car carNew = facade.editCar(username, car);
+        Assertions.assertNotEquals(oldMake, carNew.getMake());
+    }
 
     @Test
     public void testCreateUser() throws Exception {
