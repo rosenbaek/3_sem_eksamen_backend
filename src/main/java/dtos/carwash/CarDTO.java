@@ -28,4 +28,13 @@ public class CarDTO {
             totalCost += dto.getBookingCost();
         }
     }
+
+    public Car getEntity(){
+        Car car = new Car(this.registration, this.brand,this.make, this.year);
+        if (this.bookings != null){
+            bookings.forEach(b->car.addBooking(b.getEntity()));
+        }
+
+        return car;
+    }
 }

@@ -47,6 +47,16 @@ public class UserFacade {
         }
         return user;
     }
+
+    public User updateUser(User user){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.merge(user);
+        } finally {
+            em.close();
+        }
+        return user;
+    }
     
     public UserDTO createUser(UserDTO userDTO) throws Exception {
        User user = userDTO.getEntity();

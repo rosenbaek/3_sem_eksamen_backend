@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dtos.carwash.CarDTO;
 import entities.Bookings;
+import entities.Car;
 import entities.WashingAssistants;
 import facades.Facade;
 import io.restassured.RestAssured;
@@ -147,6 +149,23 @@ public class CarWashEndpointTest {
                 .then()
                 .statusCode(200)
                 .body("id", is(notNullValue()));
+
+    }
+
+    @Test
+    public void test_AddCar() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Car car = new Car("Reg4", "skoda", "oktavia", 2000);
+        CarDTO carDTO = new CarDTO(car);
+        login(StartDataSet.user.getUserName(), "testUser");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(gson.toJson(carDTO))
+                .when().post("/carwash/car")
+                .then()
+                .statusCode(200)
+                .body("registration", is(notNullValue()));
 
     }
 

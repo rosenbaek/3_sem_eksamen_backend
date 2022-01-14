@@ -1,6 +1,7 @@
 package dtos.carwash;
 
 import entities.Bookings;
+import entities.Car;
 import entities.WashingAssistants;
 
 import javax.persistence.Column;
@@ -29,6 +30,16 @@ public class BookingDTO {
         }
     }
 
+    public Bookings getEntity(){
+        Bookings booking = new Bookings(this.dateTime, this.duration);
+        if (this.id != null) {
+            booking.setId(this.id);
+        }
+        if (this.washingAssistants.size()>0) {
+            washingAssistants.forEach(w -> booking.addWashingAssistant(w.getEntity()));
+        }
+        return booking;
+    }
     public Float getBookingCost() {
         return bookingCost;
     }

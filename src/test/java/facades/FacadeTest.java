@@ -142,6 +142,13 @@ public class FacadeTest {
     }
 
     @Test
+    public void test_AddCar() throws API_Exception {
+        Car car = new Car("Reg4", "skoda", "oktavia", 2000);
+        car = facade.addCar(StartDataSet.user.getUserName(), car);
+        Assertions.assertNotNull(car.getUser());
+    }
+
+    @Test
     public void testCreateUser() throws Exception {
         String username = "TEST_NEW_USER";
         JsonObject inputJson = new JsonObject();
