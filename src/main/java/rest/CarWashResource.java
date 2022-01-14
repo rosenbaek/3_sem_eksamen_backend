@@ -92,7 +92,7 @@ public class CarWashResource {
     @PUT
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    @RolesAllowed({"user","admin"})
+    @RolesAllowed("admin")
     @Path("booking")
     public Response editBooking(String jsonString) throws API_Exception {
         AddBookingDTO inputDTO = gson.fromJson(jsonString, AddBookingDTO.class);
@@ -100,6 +100,21 @@ public class CarWashResource {
         String carReg = inputDTO.getCarReg();
         CarDTO carDTO = new CarDTO(facade.editBooking(carReg, booking));
         return Response.ok().entity(gson.toJson(carDTO)).build();
+    }
+
+    @DELETE
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @RolesAllowed("admin")
+    @Path("booking/{id}")
+    public Response deleteBooking(@PathParam("id") int id) throws API_Exception {
+        facade.removeBooking(id);
+        //Create response
+        JsonObject response = new JsonObject();
+        response.addProperty("code", 200);
+        response.addProperty("msg", "Succesfully deleted booking with ID: "+id);
+
+        return Response.ok().entity(gson.toJson(response)).build();
     }
 
     @GET

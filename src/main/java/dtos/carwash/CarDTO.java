@@ -1,6 +1,8 @@
 package dtos.carwash;
 
+import entities.Bookings;
 import entities.Car;
+import entities.WashingAssistants;
 
 import javax.persistence.Column;
 import javax.validation.constraints.Size;
@@ -13,12 +15,17 @@ public class CarDTO {
     private String make;
     private Integer year;
     private List<BookingDTO> bookings = new ArrayList<>();
+    private Float totalCost = 0f;
 
     public CarDTO(Car car) {
         this.registration = car.getRegistration();
         this.brand = car.getBrand();
         this.make = car.getMake();
         this.year = car.getYear();
-        car.getBookingsList().forEach(b -> this.bookings.add(new BookingDTO(b)));
+        for (Bookings b: car.getBookingsList()) {
+            BookingDTO dto = new BookingDTO(b);
+            bookings.add(dto);
+            totalCost += dto.getBookingCost();
+        }
     }
 }

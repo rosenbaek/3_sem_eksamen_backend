@@ -1,6 +1,7 @@
 package dtos.carwash;
 
 import entities.Bookings;
+import entities.WashingAssistants;
 
 import javax.persistence.Column;
 import javax.persistence.Temporal;
@@ -14,6 +15,7 @@ public class BookingDTO {
     private Date dateTime;
     private Integer duration;
     private List<AssistantDTO> washingAssistants = new ArrayList<>();
+    private Float bookingCost = 0f;
 
     public BookingDTO(Bookings booking) {
         if (booking.getId() != null){
@@ -21,6 +23,13 @@ public class BookingDTO {
         }
         this.dateTime = booking.getDateTime();
         this.duration = booking.getDuration();
-        booking.getWashingAssistantsList().forEach(a -> washingAssistants.add(new AssistantDTO(a)));
+        for (WashingAssistants a: booking.getWashingAssistantsList()) {
+            washingAssistants.add(new AssistantDTO(a));
+            bookingCost += (a.getRate()/60)*duration;
+        }
+    }
+
+    public Float getBookingCost() {
+        return bookingCost;
     }
 }

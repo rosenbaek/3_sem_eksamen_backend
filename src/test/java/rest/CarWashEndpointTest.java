@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import entities.Bookings;
 import entities.WashingAssistants;
 import facades.Facade;
 import io.restassured.RestAssured;
@@ -148,6 +149,19 @@ public class CarWashEndpointTest {
                 .body("id", is(notNullValue()));
 
     }
+
+    @Test
+    public void test_DeleteBooking() {
+        Bookings b = facade.getAllCars().get(2).getBookingsList().get(0);
+        login(StartDataSet.admin.getUserName(), "testAdmin");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when().delete("/carwash/booking/"+b.getId())
+                .then()
+                .statusCode(200);
+    }
+
     @Test
     public void test_GetAllCars() {
         login(StartDataSet.admin.getUserName(), "testAdmin");

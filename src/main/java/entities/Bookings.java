@@ -118,6 +118,9 @@ public class Bookings implements Serializable {
         this.car = car;
     }
 
+    public void removeCar() {
+        this.car.getBookingsList().remove(this);
+    }
     @Override
     public int hashCode() {
         int hash = 0;

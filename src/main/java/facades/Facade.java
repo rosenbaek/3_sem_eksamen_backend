@@ -76,6 +76,22 @@ public class Facade {
         return null;
     }
 
+    public void removeBooking(Integer id) throws API_Exception {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Bookings b = em.find(Bookings.class, id);
+            if (b == null){
+                throw new API_Exception("Could not find Booking");
+            }
+            em.remove(b);
+            b.removeCar();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+
     public Car editBooking(String carRegistration, Bookings booking) throws API_Exception {
         EntityManager em = emf.createEntityManager();
         try {
@@ -88,9 +104,9 @@ public class Facade {
                     throw new API_Exception("");
                 }
             }
-            updatedCar.addBooking(booking);
+            booking.setCar(updatedCar);
             em.merge(booking);
-            updatedCar = em.merge(updatedCar);
+
             em.getTransaction().commit();
             return updatedCar;
         } catch (Exception e) {
@@ -101,6 +117,7 @@ public class Facade {
         }
         return null;
     }
+
 
     public WashingAssistants addWashingAssistant(WashingAssistants washingAssistant){
         EntityManager em = emf.createEntityManager();

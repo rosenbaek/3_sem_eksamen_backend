@@ -123,6 +123,13 @@ public class FacadeTest {
         assertEquals(3, result.size());
     }
 
+    @Test
+    public void test_removeBooking() throws API_Exception {
+        List<Car> before = facade.getAllCars();
+        facade.removeBooking(before.get(2).getBookingsList().get(0).getId());
+        List<Car> result = facade.getAllCars();
+        assertEquals(0, result.get(2).getBookingsList().size());
+    }
 
     @Test
     public void test_editBooking() throws API_Exception {
